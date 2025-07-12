@@ -1,6 +1,6 @@
 ## 📸 Pré-visualização
 
-![Preview do Simulador](https://github.com/Coimbraitalo01/simulador-seguro-auto/blob/main/preview.png)
+![Preview do Simulador](https://raw.githubusercontent.com/Coimbraitalo01/simulador-seguro-auto/main/preview.png)
 
 ## 🎯 Objetivo
 Este simulador foi desenvolvido para otimizar o dia a dia de corretoras de seguros, oferecendo aos clientes um questionário digital intuitivo que coleta todas as informações necessárias para iniciar uma cotação de seguro auto.
