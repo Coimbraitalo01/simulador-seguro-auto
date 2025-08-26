@@ -49,7 +49,33 @@ Formulário completo para cotação de seguro automotivo com geração de PDF em
 - Deslocamentos regulares
 
 ## 🌐 Deploy
+simulador-seguro-auto/
+├── index.html # Página principal
+├── Logotipo_IC-05.png # Logo da empresa
+├── Preview.png # Preview do projeto
+└── README.md # Este arquivo
 
+text
+
+## 🔧 Personalização
+
+Para personalizar o projeto:
+1. Clone o repositório
+2. Edite o arquivo `index.html`
+3. Substitua `Logotipo_IC-05.png` pela sua logo
+4. Faça commit das alterações
+
+## 📄 Licença
+
+Este projeto é destinado para uso comercial da empresa.
+
+## 👨‍💻 Desenvolvido por
+
+Italo Coimbra - [GitHub](https://github.com/Coimbraitalo01)
+
+---
+
+**💡 Dica**: O formulário é 100% funcional no front-end. Para uso em produção, recomenda-se integrar com um backend para processar as cotações realmente.
 O projeto está hospedado gratuitamente no **GitHub Pages**:
 - **URL**: https://coimbraitalo01.github.io/simulador-seguro-auto/
 - **Branch**: `main`
