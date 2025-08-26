@@ -1,0 +1,925 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dados para Cotação de Seguro Auto</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
+    <style>
+        :root {
+            --primary-color: #000000;
+            --secondary-color: #333333;
+            --accent-color: #e74c3c;
+            --light-color: #f5f5f5;
+            --dark-color: #222222;
+            --text-color: #333333;
+            --border-radius: 8px;
+            --box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --transition: all 0.3s ease;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: white;
+            color: var(--text-color);
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            background: white;
+            color: var(--primary-color);
+            padding: 1.5rem 0;
+            text-align: center;
+            border-bottom: 2px solid var(--primary-color);
+            margin-bottom: 2rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .logo-container {
+            width: 180px;
+            height: 80px;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .logo-container img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+        }
+        
+        header h1 {
+            font-size: 2.2rem;
+            margin-bottom: 0.5rem;
+            color: var(--primary-color);
+        }
+        
+        header p {
+            font-size: 1.1rem;
+            color: var(--secondary-color);
+        }
+        
+        .card {
+            background: white;
+            border-radius: var(--border-radius);
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: var(--box-shadow);
+            transition: var(--transition);
+            border: 1px solid #eee;
+        }
+        
+        .card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .section-title {
+            color: var(--primary-color);
+            border-bottom: 2px solid var(--light-color);
+            padding-bottom: 0.5rem;
+            margin-bottom: 1.5rem;
+            font-size: 1.4rem;
+        }
+        
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+        
+        .form-group {
+            margin-bottom: 1.2rem;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: var(--dark-color);
+        }
+        
+        input, select, textarea {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            border-radius: var(--border-radius);
+            font-size: 1rem;
+            transition: var(--transition);
+        }
+        
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.1);
+        }
+        
+        .radio-group {
+            margin-top: 0.5rem;
+        }
+        
+        .radio-option {
+            display: inline-block;
+            margin-right: 1.5rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .radio-option input[type="radio"] {
+            width: auto;
+            margin-right: 0.5rem;
+        }
+        
+        button {
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            font-size: 1.1rem;
+            font-weight: 600;
+            transition: var(--transition);
+            display: block;
+            margin: 1rem auto;
+            width: 100%;
+            max-width: 300px;
+        }
+        
+        button:hover {
+            background: var(--secondary-color);
+            transform: translateY(-2px);
+        }
+        
+        .btn-generate-pdf {
+            background: #2c3e50;
+        }
+        
+        .btn-submit {
+            background: var(--primary-color);
+        }
+        
+        footer {
+            text-align: center;
+            margin-top: 3rem;
+            padding: 2rem 0;
+            color: #7f8c8d;
+            border-top: 1px solid #ddd;
+        }
+        
+        .required::after {
+            content: " *";
+            color: var(--accent-color);
+        }
+        
+        @media (max-width: 768px) {
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            header h1 {
+                font-size: 1.8rem;
+            }
+        }
+        
+        .conditional-field {
+            display: none;
+            margin-top: 0.8rem;
+            padding-left: 1.5rem;
+            border-left: 3px solid var(--primary-color);
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .modal-content {
+            background-color: white;
+            padding: 2rem;
+            border-radius: var(--border-radius);
+            max-width: 500px;
+            width: 90%;
+            text-align: center;
+        }
+        
+        .modal h2 {
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+        }
+        
+        .modal p {
+            margin-bottom: 1.5rem;
+        }
+        
+        .modal-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+        }
+        
+        .modal-btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            font-weight: 600;
+        }
+        
+        .modal-btn.confirm {
+            background-color: var(--primary-color);
+            color: white;
+        }
+        
+        .modal-btn.cancel {
+            background-color: #e0e0e0;
+            color: var(--text-color);
+        }
+        
+        .loading {
+            display: none;
+            text-align: center;
+            margin: 1rem 0;
+        }
+        
+        .spinner {
+            border: 4px solid rgba(0, 0, 0, 0.1);
+            border-left: 4px solid var(--primary-color);
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .buttons-container {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 2rem;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo-container">
+            <img src="Logotipo_IC-05.png" alt="Logo">
+        </div>
+        <h1>Dados para Cotação de Seguro Auto</h1>
+        <p>Preencha todas as informações necessárias para sua cotação</p>
+    </header>
+    
+    <div class="container">
+        <form id="insurance-quote-form">
+            <!-- Dados do Segurado -->
+            <div class="card">
+                <h2 class="section-title">Dados do Segurado (Proprietário do veículo)</h2>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="fullname" class="required">Nome completo</label>
+                        <input type="text" id="fullname" name="fullname" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="cpf-cnpj" class="required">CPF ou CNPJ</label>
+                        <input type="text" id="cpf-cnpj" name="cpf-cnpj" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="birthdate" class="required">Data de nascimento</label>
+                        <input type="date" id="birthdate" name="birthdate" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="phone" class="required">Telefone celular</label>
+                        <input type="tel" id="phone" name="phone" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="email" class="required">E-mail</label>
+                        <input type="email" id="email" name="email" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="address" class="required">Endereço</label>
+                        <input type="text" id="address" name="address" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="cep" class="required">CEP</label>
+                        <input type="text" id="cep" name="cep" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="required">Tipo de residência</label>
+                        <div class="radio-group">
+                            <label class="radio-option">
+                                <input type="radio" name="residence-type" value="house" required> Casa
+                            </label>
+                            <label class="radio-option">
+                                <input type="radio" name="residence-type" value="apartment"> Apartamento
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="profession" class="required">Profissão</label>
+                        <input type="text" id="profession" name="profession" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="marital-status" class="required">Estado Civil</label>
+                        <select id="marital-status" name="marital-status" required>
+                            <option value="">Selecione</option>
+                            <option value="single">Solteiro(a)</option>
+                            <option value="married">Casado(a)</option>
+                            <option value="divorced">Divorciado(a)</option>
+                            <option value="widowed">Viúvo(a)</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label class="required">Reside com menor de 26 anos habilitado?</label>
+                    <div class="radio-group">
+                        <label class="radio-option">
+                            <input type="radio" name="lives-with-minor" value="yes" required> Sim
+                        </label>
+                        <label class="radio-option">
+                            <input type="radio" name="lives-with-minor" value="no"> Não
+                        </label>
+                    </div>
+                    
+                    <div id="minor-details" class="conditional-field">
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="minor-age">Idade do menor</label>
+                                <input type="number" id="minor-age" name="minor-age" min="0" max="25">
+                            </div>
+                            
+                            <div class="form-group">
+                                <label>Sexo do menor</label>
+                                <div class="radio-group">
+                                    <label class="radio-option">
+                                        <input type="radio" name="minor-gender" value="male"> Masculino
+                                    </label>
+                                    <label class="radio-option">
+                                        <input type="radio" name="minor-gender" value="female"> Feminino
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Dados do Veículo -->
+            <div class="card">
+                <h2 class="section-title">Dados do Veículo</h2>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="plate" class="required">Placa</label>
+                        <input type="text" id="plate" name="plate" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="vehicle" class="required">Veículo</label>
+                        <input type="text" id="vehicle" name="vehicle" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="year-model" class="required">Ano e Modelo</label>
+                        <input type="text" id="year-model" name="year-model" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="required">Câmbio</label>
+                        <div class="radio-group">
+                            <label class="radio-option">
+                                <input type="radio" name="transmission" value="manual" required> Manual
+                            </label>
+                            <label class="radio-option">
+                                <input type="radio" name="transmission" value="automatic"> Automático
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="required">Financiado</label>
+                        <div class="radio-group">
+                            <label class="radio-option">
+                                <input type="radio" name="financed" value="yes" required> Sim
+                            </label>
+                            <label class="radio-option">
+                                <input type="radio" name="financed" value="no"> Não
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Dados de Utilização -->
+            <div class="card">
+                <h2 class="section-title">Dados de Utilização</h2>
+                
+                <div class="form-group">
+                    <label class="required">Principal utilização do veículo</label>
+                    <div class="radio-group">
+                        <label class="radio-option">
+                            <input type="radio" name="vehicle-use" value="leisure" required> Lazer
+                        </label>
+                        <label class="radio-option">
+                            <input type="radio" name="vehicle-use" value="work"> Trabalho
+                        </label>
+                        <label class="radio-option">
+                            <input type="radio" name="vehicle-use" value="daily"> Dia a dia
+                        </label>
+                        <label class="radio-option">
+                            <input type="radio" name="vehicle-use" value="app"> Trabalho app mobilidade
+                        </label>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label class="required">Garagem em casa?</label>
+                    <div class="radio-group">
+                        <label class="radio-option">
+                            <input type="radio" name="home-garage" value="yes" required> Sim
+                        </label>
+                        <label class="radio-option">
+                            <input type="radio" name="home-garage" value="no"> Não
+                        </label>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label class="required">Garagem no trabalho?</label>
+                    <div class="radio-group">
+                        <label class="radio-option">
+                            <input type="radio" name="work-garage" value="yes" required> Sim
+                        </label>
+                        <label class="radio-option">
+                            <input type="radio" name="work-garage" value="no"> Não
+                        </label>
+                        <label class="radio-option">
+                            <input type="radio" name="work-garage" value="not-used"> Não utiliza
+                        </label>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label class="required">Ida para escola ou faculdade?</label>
+                    <div class="radio-group">
+                        <label class="radio-option">
+                            <input type="radio" name="school-trip" value="yes" required> Sim
+                        </label>
+                        <label class="radio-option">
+                            <input type="radio" name="school-trip" value="no"> Não
+                        </label>
+                        <label class="radio-option">
+                            <input type="radio" name="school-trip" value="not-used"> Não utiliza
+                        </label>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Dados de Habilitação -->
+            <div class="card">
+                <h2 class="section-title">Dados de Habilitação</h2>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="license-time" class="required">Tempo de Habilitação (anos)</label>
+                        <input type="number" id="license-time" name="license-time" min="0" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="required">Segurado é o principal condutor?</label>
+                        <div class="radio-group">
+                            <label class="radio-option">
+                                <input type="radio" name="main-driver" value="yes" required> Sim
+                            </label>
+                            <label class="radio-option">
+                                <input type="radio" name="main-driver" value="no"> Não
+                            </label>
+                        </div>
+                    
+                        <div id="driver-relation-field" class="conditional-field">
+                            <label for="driver-relation" class="required">Qual a relação do segurado com o condutor?</label>
+                            <select id="driver-relation" name="driver-relation">
+                                <option value="">Selecione</option>
+                                <option value="spouse">Cônjuge/Companheiro(a)</option>
+                                <option value="son">Filho(a)</option>
+                                <option value="father">Pai</option>
+                                <option value="mother">Mãe</option>
+                                <option value="brother">Irmão(ã)</option>
+                                <option value="other">Outro</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="loading" id="loading">
+                <div class="spinner"></div>
+                <p>Enviando dados para cotação...</p>
+            </div>
+            
+            <div class="buttons-container">
+                <button type="button" id="generate-pdf-btn" class="btn-generate-pdf">Gerar PDF para Cotação</button>
+                <button type="submit" class="btn-submit">Enviar para Cotação</button>
+            </div>
+        </form>
+    </div>
+    
+    <div class="modal" id="confirmation-modal">
+        <div class="modal-content">
+            <h2>Confirmação de Envio</h2>
+            <p>Deseja enviar os dados preenchidos para cotação?</p>
+            <div class="modal-buttons">
+                <button class="modal-btn confirm" id="confirm-btn">Sim, Enviar</button>
+                <button class="modal-btn cancel" id="cancel-btn">Cancelar</button>
+            </div>
+        </div>
+    </div>
+    
+    <div class="modal" id="success-modal">
+        <div class="modal-content">
+            <h2>Dados Enviados com Sucesso!</h2>
+            <p>Os dados foram enviados para cotação. Em breve entraremos em contato.</p>
+            <p>Um PDF com os dados preenchidos foi gerado e enviado para o email cadastrado.</p>
+            <button class="modal-btn confirm" id="success-btn">OK</button>
+        </div>
+    </div>
+    
+    <footer>
+        <div class="container">
+            <p>Formulário para Cotação de Seguro Auto &copy; 2023 - Todos os direitos reservados</p>
+        </div>
+    </footer>
+
+    <script>
+        // Inicializar jsPDF
+        const { jsPDF } = window.jspdf;
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.getElementById('insurance-quote-form');
+            const confirmationModal = document.getElementById('confirmation-modal');
+            const successModal = document.getElementById('success-modal');
+            const loadingElement = document.getElementById('loading');
+            const confirmBtn = document.getElementById('confirm-btn');
+            const cancelBtn = document.getElementById('cancel-btn');
+            const successBtn = document.getElementById('success-btn');
+            const generatePdfBtn = document.getElementById('generate-pdf-btn');
+            
+            // Mostrar/ocultar campos condicionais
+            const livesWithMinorRadios = document.querySelectorAll('input[name="lives-with-minor"]');
+            const minorDetails = document.getElementById('minor-details');
+            
+            livesWithMinorRadios.forEach(radio => {
+                radio.addEventListener('change', function() {
+                    if (this.value === 'yes') {
+                        minorDetails.style.display = 'block';
+                    } else {
+                        minorDetails.style.display = 'none';
+                    }
+                });
+            });
+            
+            const mainDriverRadios = document.querySelectorAll('input[name="main-driver"]');
+            const driverRelationField = document.getElementById('driver-relation-field');
+            
+            mainDriverRadios.forEach(radio => {
+                radio.addEventListener('change', function() {
+                    if (this.value === 'no') {
+                        driverRelationField.style.display = 'block';
+                        driverRelationField.querySelector('select').setAttribute('required', 'required');
+                    } else {
+                        driverRelationField.style.display = 'none';
+                        driverRelationField.querySelector('select').removeAttribute('required');
+                    }
+                });
+            });
+            
+            // Validação do formulário
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                if (validateForm()) {
+                    confirmationModal.style.display = 'flex';
+                }
+            });
+            
+            // Botão para gerar PDF
+            generatePdfBtn.addEventListener('click', function() {
+                if (validateForm()) {
+                    generatePDF();
+                }
+            });
+            
+            // Confirmar envio
+            confirmBtn.addEventListener('click', function() {
+                confirmationModal.style.display = 'none';
+                loadingElement.style.display = 'block';
+                
+                // Simular processamento e envio
+                setTimeout(function() {
+                    loadingElement.style.display = 'none';
+                    successModal.style.display = 'flex';
+                    
+                    // Aqui você normalmente enviaria os dados para um servidor
+                    const formData = new FormData(form);
+                    for (let [key, value] of formData.entries()) {
+                        console.log(`${key}: ${value}`);
+                    }
+                    
+                    // Simular geração de PDF e envio por email
+                    simulateEmailWithPDF();
+                }, 2000);
+            });
+            
+            // Cancelar envio
+            cancelBtn.addEventListener('click', function() {
+                confirmationModal.style.display = 'none';
+            });
+            
+            // Fechar modal de sucesso
+            successBtn.addEventListener('click', function() {
+                successModal.style.display = 'none';
+                form.reset();
+                
+                // Ocultar campos condicionais após reset
+                minorDetails.style.display = 'none';
+                driverRelationField.style.display = 'none';
+            });
+            
+            // Formatação automática de alguns campos
+            const cpfCnpjField = document.getElementById('cpf-cnpj');
+            cpfCnpjField.addEventListener('input', function() {
+                let value = this.value.replace(/\D/g, '');
+                
+                if (value.length <= 11) {
+                    // Formatar como CPF
+                    value = value.replace(/(\d{3})(\d)/, '$1.$2');
+                    value = value.replace(/(\d{3})(\d)/, '$1.$2');
+                    value = value.replace(/(\d{3})(\d{1,2})$/, '$1-$2');
+                } else {
+                    // Formatar como CNPJ
+                    value = value.replace(/^(\d{2})(\d)/, '$1.$2');
+                    value = value.replace(/^(\d{2})\.(\d{3})(\d)/, '$1.$2.$3');
+                    value = value.replace(/\.(\d{3})(\d)/, '.$1/$2');
+                    value = value.replace(/(\d{4})(\d)/, '$1-$2');
+                }
+                
+                this.value = value;
+            });
+            
+            const cepField = document.getElementById('cep');
+            cepField.addEventListener('input', function() {
+                let value = this.value.replace(/\D/g, '');
+                value = value.replace(/^(\d{5})(\d)/, '$1-$2');
+                this.value = value;
+            });
+            
+            const plateField = document.getElementById('plate');
+            plateField.addEventListener('input', function() {
+                let value = this.value.toUpperCase().replace(/[^A-Z0-9]/g, '');
+                
+                if (value.length > 3) {
+                    value = value.replace(/(\w{3})(\w)/, '$1-$2');
+                }
+                
+                this.value = value;
+            });
+            
+            // Função para validar o formulário
+            function validateForm() {
+                let isValid = true;
+                const requiredFields = form.querySelectorAll('[required]');
+                
+                requiredFields.forEach(field => {
+                    if (!field.value.trim()) {
+                        isValid = false;
+                        field.style.borderColor = 'var(--accent-color)';
+                    } else {
+                        field.style.borderColor = '#ddd';
+                    }
+                });
+                
+                if (!isValid) {
+                    alert('Por favor, preencha todos os campos obrigatórios.');
+                    return false;
+                }
+                
+                return true;
+            }
+            
+            // Função para gerar PDF
+            function generatePDF() {
+                // Coletar dados do formulário
+                const formData = new FormData(form);
+                const data = {};
+                
+                for (let [key, value] of formData.entries()) {
+                    data[key] = value;
+                }
+                
+                // Criar novo documento PDF
+                const doc = new jsPDF();
+                
+                // Adicionar título
+                doc.setFontSize(20);
+                doc.setTextColor(40, 40, 40);
+                doc.text("COTACAO DE SEGURO AUTO", 105, 20, { align: "center" });
+                
+                // Adicionar linha separadora
+                doc.setDrawColor(200, 200, 200);
+                doc.line(20, 25, 190, 25);
+                
+                // Adicionar data e hora
+                doc.setFontSize(10);
+                doc.setTextColor(100, 100, 100);
+                const now = new Date();
+                const dateTime = now.toLocaleString('pt-BR');
+                doc.text(`Data e Hora: ${dateTime}`, 20, 35);
+                
+                // Adicionar dados do segurado
+                doc.setFontSize(16);
+                doc.setTextColor(40, 40, 40);
+                doc.text("DADOS DO SEGURADO", 20, 50);
+                
+                doc.setFontSize(10);
+                let yPosition = 60;
+                
+                // Função para adicionar campo ao PDF
+                function addField(label, value, y) {
+                    doc.setFont(undefined, 'bold');
+                    doc.text(`${label}:`, 20, y);
+                    doc.setFont(undefined, 'normal');
+                    doc.text(value || 'Não informado', 70, y);
+                    return y + 7;
+                }
+                
+                yPosition = addField("Nome completo", data.fullname, yPosition);
+                yPosition = addField("CPF/CNPJ", data['cpf-cnpj'], yPosition);
+                yPosition = addField("Data nascimento", data.birthdate, yPosition);
+                yPosition = addField("Telefone", data.phone, yPosition);
+                yPosition = addField("E-mail", data.email, yPosition);
+                yPosition = addField("Endereço", data.address, yPosition);
+                yPosition = addField("CEP", data.cep, yPosition);
+                yPosition = addField("Tipo residência", data['residence-type'] === 'house' ? 'Casa' : 'Apartamento', yPosition);
+                yPosition = addField("Profissão", data.profession, yPosition);
+                yPosition = addField("Estado civil", document.getElementById('marital-status').options[document.getElementById('marital-status').selectedIndex].text, yPosition);
+                
+                // Adicionar dados do veículo
+                if (yPosition > 240) {
+                    doc.addPage();
+                    yPosition = 20;
+                }
+                
+                doc.setFontSize(16);
+                doc.setTextColor(40, 40, 40);
+                doc.text("DADOS DO VEÍCULO", 20, yPosition + 10);
+                yPosition += 20;
+                
+                doc.setFontSize(10);
+                yPosition = addField("Placa", data.plate, yPosition);
+                yPosition = addField("Veículo", data.vehicle, yPosition);
+                yPosition = addField("Ano/Modelo", data['year-model'], yPosition);
+                yPosition = addField("Câmbio", data.transmission === 'manual' ? 'Manual' : 'Automático', yPosition);
+                yPosition = addField("Financiado", data.financed === 'yes' ? 'Sim' : 'Não', yPosition);
+                
+                // Adicionar dados de utilização
+                if (yPosition > 240) {
+                    doc.addPage();
+                    yPosition = 20;
+                }
+                
+                doc.setFontSize(16);
+                doc.setTextColor(40, 40, 40);
+                doc.text("DADOS DE UTILIZAÇÃO", 20, yPosition + 10);
+                yPosition += 20;
+                
+                doc.setFontSize(10);
+                
+                // Utilização principal
+                let usoPrincipal = '';
+                switch(data['vehicle-use']) {
+                    case 'leisure': usoPrincipal = 'Lazer'; break;
+                    case 'work': usoPrincipal = 'Trabalho'; break;
+                    case 'daily': usoPrincipal = 'Dia a dia'; break;
+                    case 'app': usoPrincipal = 'Trabalho app mobilidade'; break;
+                }
+                yPosition = addField("Uso principal", usoPrincipal, yPosition);
+                
+                yPosition = addField("Garagem em casa", data['home-garage'] === 'yes' ? 'Sim' : 'Não', yPosition);
+                
+                let garagemTrabalho = '';
+                switch(data['work-garage']) {
+                    case 'yes': garagemTrabalho = 'Sim'; break;
+                    case 'no': garagemTrabalho = 'Não'; break;
+                    case 'not-used': garagemTrabalho = 'Não utiliza'; break;
+                }
+                yPosition = addField("Garagem no trabalho", garagemTrabalho, yPosition);
+                
+                let escolaFaculdade = '';
+                switch(data['school-trip']) {
+                    case 'yes': escolaFaculdade = 'Sim'; break;
+                    case 'no': escolaFaculdade = 'Não'; break;
+                    case 'not-used': escolaFaculdade = 'Não utiliza'; break;
+                }
+                yPosition = addField("Ida escola/faculdade", escolaFaculdade, yPosition);
+                
+                // Adicionar dados de habilitação
+                if (yPosition > 240) {
+                    doc.addPage();
+                    yPosition = 20;
+                }
+                
+                doc.setFontSize(16);
+                doc.setTextColor(40, 40, 40);
+                doc.text("DADOS DE HABILITAÇÃO", 20, yPosition + 10);
+                yPosition += 20;
+                
+                doc.setFontSize(10);
+                yPosition = addField("Tempo de habilitação", data['license-time'] ? `${data['license-time']} anos` : '', yPosition);
+                yPosition = addField("Principal condutor", data['main-driver'] === 'yes' ? 'Sim' : 'Não', yPosition);
+                
+                if (data['main-driver'] === 'no') {
+                    yPosition = addField("Relação com condutor", document.getElementById('driver-relation').options[document.getElementById('driver-relation').selectedIndex].text, yPosition);
+                }
+                
+                // Adicionar dados de menores (se aplicável)
+                if (data['lives-with-minor'] === 'yes') {
+                    if (yPosition > 240) {
+                        doc.addPage();
+                        yPosition = 20;
+                    }
+                    
+                    doc.setFontSize(16);
+                    doc.setTextColor(40, 40, 40);
+                    doc.text("MENORES HABILITADOS", 20, yPosition + 10);
+                    yPosition += 20;
+                    
+                    doc.setFontSize(10);
+                    yPosition = addField("Idade do menor", data['minor-age'], yPosition);
+                    
+                    let sexoMenor = '';
+                    if (data['minor-gender'] === 'male') sexoMenor = 'Masculino';
+                    if (data['minor-gender'] === 'female') sexoMenor = 'Feminino';
+                    yPosition = addField("Sexo do menor", sexoMenor, yPosition);
+                }
+                
+                // Adicionar rodapé
+                const pageCount = doc.internal.getNumberOfPages();
+                for (let i = 1; i <= pageCount; i++) {
+                    doc.setPage(i);
+                    doc.setFontSize(8);
+                    doc.setTextColor(100, 100, 100);
+                    doc.text(`Página ${i} de ${pageCount}`, 105, 285, { align: "center" });
+                    doc.text("Cotação gerada em: " + dateTime, 105, 290, { align: "center" });
+                }
+                
+                // Salvar o PDF
+                doc.save(`cotacao-seguro-auto-${data.fullname.replace(/\s+/g, '-').toLowerCase()}.pdf`);
+                
+                // Mensagem de confirmação
+                alert('PDF gerado com sucesso! Verifique sua pasta de downloads.');
+            }
+            
+            // Função para simular envio de email
+            function simulateEmailWithPDF() {
+                console.log('Simulando envio de email com PDF anexado...');
+            }
+        });
+    </script>
+</body>
+</html>
